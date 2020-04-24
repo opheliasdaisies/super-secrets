@@ -1,5 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
+
+firebase.initializeApp({
+});
+
+let db = firebase.firestore();
 
 function Secret({ secret, index, findSecret, removeSecret }) {
   return(
@@ -39,20 +46,18 @@ function SecretForm({ addSecret }) {
 }
 
 function App() {
-  const [secrets, setSecrets] = useState([
-    {
-      text: 'Learn about React',
-      isCompleted: false
-    },
-    {
-      text: 'meet friend for lunch',
-      isCompleted: false
-    },
-    {
-      text: 'build really cool app',
-      isCompleted: false
-    }
-  ]);
+  const [secrets, setSecrets] = useState([]);
+
+  useEffect(async () => {
+    db.collection('test_secrets').get()
+      .then((querySnapshot) => {
+        let loadedSecrets = []
+        querySnapshot.forEach((doc) => {
+          loadedSecrets.push(doc.data())
+        });
+        setSecrets(loadedSecrets);
+      })
+  }, []);
 
   const addSecret = text => {
     const updatedSecrets = [...secrets, { text }]

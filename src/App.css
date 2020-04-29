@@ -1,18 +1,18 @@
 .app {
-  background: #209cee;
+  /* background: #209cee; */
   padding: 30px;
   height: 100vh;
 }
 
 .found-secrets-list {
-  background: #e8e8e8;
+  /* background: #e8e8e8; */
   border-radius: 4px;
   padding: 5px;
   max-width: 400px;
 }
 
 .secret {
-  background: #fff;
+  /* background: #fff; */
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.15);
   padding: 3px 10px;
   font-size: 12px;

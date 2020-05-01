@@ -56,8 +56,58 @@ function SecretForm({ addSecret }) {
   )
 }
 
+function AddSecretModal(props) {
+  return(
+    <Modal
+      {...props}
+      size='lg'
+      aria-labelledby='add-secret-modal-title'
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id='add-secret-modal-title'>
+          Add New Secret
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <h4>Add your secret here</h4>
+        <SecretForm addSecret={props.addSecret} />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
+function FindSecretModal(props) {
+  return(
+    <Modal
+      {...props}
+      size='lg'
+      aria-labelledby='add-secret-modal-title'
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id='add-secret-modal-title'>
+          Uncover Secret
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <h4>Enter the id of the secret you found!</h4>
+        <SecretForm addSecret={props.addSecret} />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function App() {
   const [secrets, setSecrets] = useState([]);
+  const [addModalShow, setAddModalShow] = useState(false);
+  const [findModalShow, setFindModalShow] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -80,6 +130,7 @@ function App() {
     })
     .then((docRef) => {
       console.log('Document successfully written');
+      setAddModalShow(false)
       const updatedSecrets = [...secrets, { 'id': docRef.id, 'data':  {'text': text, 'isCompleted': false}}]
       setSecrets(updatedSecrets);
     })
@@ -131,8 +182,18 @@ function App() {
         <SecretForm addSecret={addSecret} />
       </div>
       <div className='new-secret-button'>
-        <Button variant='dark'>Add A Secret</Button>
-        <Button variant='light'>Uncover A Secret</Button>
+        <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
+        <AddSecretModal
+          show={addModalShow}
+          onHide={() => setAddModalShow(false)}
+          addSecret={addSecret}
+        />
+        <Button variant='light' onClick={() => setFindModalShow(true)}>Uncover A Secret</Button>
+        <FindSecretModal
+          show={findModalShow}
+          onHide={() => setFindModalShow(false)}
+          findSecret={findSecret}
+        />
       </div>
     </div>
   )

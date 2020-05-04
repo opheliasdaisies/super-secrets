@@ -23,7 +23,7 @@ let db = firebase.firestore();
 
 function Secret({ secret, index, id, findSecret, removeSecret }) {
   return (
-    <Card style={{ 'min-width': '25%',textDecoration: secret.isCompleted ? "line-through" : '' }}>
+    <Card style={{ 'min-width': '25%',textDecoration: secret.isFound ? "line-through" : '' }}>
       <Card.Header>
         <Card.Title className='text-center'>{secret.title}</Card.Title>
       </Card.Header>
@@ -134,19 +134,21 @@ function FindSecretModal(props) {
 }
 
 function App() {
-  const [secrets, setSecrets] = useState([]);
+  const [foundSecrets, setFoundSecrets] = useState([]);
   const [addModalShow, setAddModalShow] = useState(false);
   const [findModalShow, setFindModalShow] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      await db.collection('test_secrets').get()
+      await db.collection('test_secrets')
+        .where('isFound', '==', true)
+        .get()
         .then((querySnapshot) => {
           let loadedSecrets = []
           querySnapshot.forEach((doc) => {
             loadedSecrets.push({'id': doc.id, 'data': doc.data()});
           });
-          setSecrets(loadedSecrets);
+          setFoundSecrets(loadedSecrets);
         })
     }
     fetchData();
@@ -157,23 +159,23 @@ function App() {
       'title': title,
       'content': content,
       'story': story,
-      'isCompleted': false
+      'isFound': false
     })
     .then((docRef) => {
       console.log('Document successfully written');
       setAddModalShow(false)
-      const updatedSecrets = [...secrets, {
+      const updatedSecrets = [...foundSecrets, {
         'id': docRef.id,
         'data':
           {
             'title': title,
             'content': content,
             'story': story,
-            'isCompleted': false
+            'isFound': false
           }
         }
       ];
-      setSecrets(updatedSecrets);
+      setFoundSecrets(updatedSecrets);
     })
     .catch((error) => {
       console.error('Error writing document: ', error);
@@ -182,13 +184,13 @@ function App() {
 
   const findSecret = (index, id) => {
     db.collection('test_secrets').doc(id).set({
-      'isCompleted': true
+      'isFound': true
     }, { merge: true })
       .then(() => {
         console.log('Secret was found!')
-        const newSecrets = [...secrets];
-        newSecrets[index].isCompleted = true;
-        setSecrets(newSecrets);
+        const newSecrets = [...foundSecrets];
+        newSecrets[index].isFound = true;
+        setFoundSecrets(newSecrets);
       })
       .catch((error) => {
         console.error('Secret was not marked as found: ', error);
@@ -199,9 +201,9 @@ function App() {
     db.collection('test_secrets').doc(id).delete()
       .then(() => {
         console.log('Secret deleted!');
-        const newSecrets = [...secrets];
+        const newSecrets = [...foundSecrets];
         newSecrets.splice(index, 1);
-        setSecrets(newSecrets);
+        setFoundSecrets(newSecrets);
       })
       .catch((error) => {
         console.error('Secret was not removed: ', error);
@@ -210,7 +212,7 @@ function App() {
   return (
     <div className='app'>
       <CardDeck className='secret-list'>
-        {secrets.map((secret, index) => (
+        {foundSecrets.map((secret, index) => (
           <Secret
             key={index}
             index={index}

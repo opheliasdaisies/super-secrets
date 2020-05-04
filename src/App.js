@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 import './App.css';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -36,23 +37,54 @@ function Secret({ secret, index, id, findSecret, removeSecret }) {
 
 function SecretForm({ addSecret }) {
   const [secretTitle, setSecretTitle] = useState('');
+  const [secretContent, setSecretContent] = useState('');
+  const [secretStory, setSecretStory] = useState('');
 
   const handleSubmit = e => {
+    debugger;
     e.preventDefault();
     if (!secretTitle) return;
-    addSecret(secretTitle);
+    if (!secretContent) return;
+    if (!secretStory) return;
+    addSecret(secretTitle, secretContent, secretStory);
     setSecretTitle('');
+    setSecretContent('');
+    setSecretStory('');
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type='text'
-        className='input'
-        value={secretTitle}
-        onChange={e => setSecretTitle(e.target.value)}
-      />
-    </form>
+    <Form onSubmit={handleSubmit}>
+      <Form.Group controlId='formSecretTitle'>
+        <Form.Label>Write a Title</Form.Label>
+        <Form.Control
+          type='text'
+          placeholder='Enter a title'
+          value={secretTitle}
+          onChange={e => setSecretTitle(e.target.value)}
+        />
+      </Form.Group>
+      <Form.Group controlId='formSecretContent'>
+        <Form.Label>Enter the Secret Content</Form.Label>
+        <Form.Control
+          as='textarea'
+          rows='5'
+          placeholder='Enter the content of the secret. This will be whatever is found "in the wild", whether it be a note, a recording, or something else.'
+          onChange={e => setSecretContent(e.target.value)}
+        />
+      </Form.Group>
+      <Form.Group controlId='formSecretStory'>
+        <Form.Label>Write a Secret Story</Form.Label>
+        <Form.Control
+          as='textarea'
+          rows='5'
+          placeholder='Enter the rest of the story that was not included in the inital secret. This is the payoff the finder gets for registering that they found the secret!'
+          onChange={e => setSecretStory(e.target.value)}
+        />
+      </Form.Group>
+      <Button variant='primary' type='submit'>
+        Submit
+      </Button>
+    </Form>
   )
 }
 
@@ -73,9 +105,6 @@ function AddSecretModal(props) {
         <h4>Add your secret here</h4>
         <SecretForm addSecret={props.addSecret} />
       </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-      </Modal.Footer>
     </Modal>
   );
 }
@@ -97,9 +126,6 @@ function FindSecretModal(props) {
         <h4>Enter the id of the secret you found!</h4>
         <SecretForm addSecret={props.addSecret} />
       </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-      </Modal.Footer>
     </Modal>
   );
 }
@@ -123,15 +149,27 @@ function App() {
     fetchData();
   }, []);
 
-  const addSecret = text => {
+  const addSecret = (title, content, story)  => {
     db.collection('test_secrets').add({
-      'text': text,
+      'title': title,
+      'content': content,
+      'story': story,
       'isCompleted': false
     })
     .then((docRef) => {
       console.log('Document successfully written');
       setAddModalShow(false)
-      const updatedSecrets = [...secrets, { 'id': docRef.id, 'data':  {'text': text, 'isCompleted': false}}]
+      const updatedSecrets = [...secrets, {
+        'id': docRef.id,
+        'data':
+          {
+            'title': title,
+            'content': content,
+            'story': story,
+            'isCompleted': false
+          }
+        }
+      ];
       setSecrets(updatedSecrets);
     })
     .catch((error) => {
@@ -179,7 +217,6 @@ function App() {
             removeSecret={removeSecret}
           />
         ))}
-        <SecretForm addSecret={addSecret} />
       </div>
       <div className='new-secret-button'>
         <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>

@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import Card from 'react-bootstrap/Card';
+import CardDeck from 'react-bootstrap/CardDeck';
 import './App.css';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -20,19 +22,21 @@ firebase.initializeApp({
 let db = firebase.firestore();
 
 function Secret({ secret, index, id, findSecret, removeSecret }) {
-  let style = (
-    <div
-      className='secret'
-      style={{ textDecoration: secret.isCompleted ? "line-through" : '' }}
-    >
-      {secret.text}
-      <div>
-        <Button variant='outline-secondary' size='sm' onClick={() => findSecret(index, id)}>Find</Button>
-        <Button variant='outline-secondary' size='sm' onClick={() => removeSecret(index, id)}>X</Button>
-      </div>
-    </div>
+  return (
+    <Card style={{ 'min-width': '25%',textDecoration: secret.isCompleted ? "line-through" : '' }}>
+      <Card.Header>
+        <Card.Title className='text-center'>{secret.title}</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        <Card.Subtitle>This secret was discovered:</Card.Subtitle>
+        <Card.Text>{secret.content}</Card.Text>
+        <Card.Subtitle>This is the rest of the story:</Card.Subtitle>
+        <Card.Text>{secret.story}</Card.Text>
+      </Card.Body>
+      <Button variant='outline-secondary' size='sm' onClick={() => findSecret(index, id)}>Find</Button>
+      <Button variant='outline-secondary' size='sm' onClick={() => removeSecret(index, id)}>X</Button>
+    </Card>
   );
-  return style;
 }
 
 function SecretForm({ addSecret }) {
@@ -41,7 +45,6 @@ function SecretForm({ addSecret }) {
   const [secretStory, setSecretStory] = useState('');
 
   const handleSubmit = e => {
-    debugger;
     e.preventDefault();
     if (!secretTitle) return;
     if (!secretContent) return;
@@ -206,7 +209,7 @@ function App() {
   }
   return (
     <div className='app'>
-      <div className='secret-list'>
+      <CardDeck className='secret-list'>
         {secrets.map((secret, index) => (
           <Secret
             key={index}
@@ -217,7 +220,7 @@ function App() {
             removeSecret={removeSecret}
           />
         ))}
-      </div>
+      </CardDeck>
       <div className='new-secret-button'>
         <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
         <AddSecretModal

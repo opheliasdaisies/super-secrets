@@ -251,6 +251,7 @@ function App() {
     <div className='app'>
 
       <div className='new-secret-button'>
+        <h1>Super Secrets</h1>
         <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
         <AddSecretModal
           show={addModalShow}

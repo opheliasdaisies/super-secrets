@@ -1,5 +1,7 @@
 .app {
   /* background: #209cee; */
+  background-image: url('./background.jpg');
+  background-size: cover;
   padding: 30px;
   height: 100vh;
 }

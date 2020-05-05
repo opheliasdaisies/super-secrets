@@ -21,7 +21,7 @@ firebase.initializeApp({
 
 let db = firebase.firestore();
 
-function Secret({ secret, index, id, removeSecret }) {
+function Secret({ secret, index, id }) {
   return (
     <Card style={{ 'min-width': '25%' }}>
       <Card.Header>
@@ -33,7 +33,6 @@ function Secret({ secret, index, id, removeSecret }) {
         <Card.Subtitle>This is the rest of the story:</Card.Subtitle>
         <Card.Text>{secret.story}</Card.Text>
       </Card.Body>
-      <Button variant='outline-secondary' size='sm' onClick={() => removeSecret(index, id)}>X</Button>
     </Card>
   );
 }
@@ -217,12 +216,13 @@ function App() {
   const findSecret = (id) => {
     // TODO: Add date found
     // TODO: Add modal showing found secret text, to highlight the story
+    // TODO: First check to see if secret exists! Don't add if it does not
     db.collection('test_secrets').doc(id).set({
       'isFound': true
     }, { merge: true })
       .then(() => {
         console.log('Secret was found!')
-        setFindModalShow(false)
+        setFindModalShow(false) // TODO: instead of settng show to false, change body to show secret
         db.collection('test_secrets').doc(id).get()
           .then((querySnapshot) => {
             let foundSecret = {'id': id, 'data': querySnapshot.data()};
@@ -237,18 +237,6 @@ function App() {
       });
   }
 
-  const removeSecret = (index, id) => {
-    db.collection('test_secrets').doc(id).delete()
-      .then(() => {
-        console.log('Secret deleted!');
-        const newSecrets = [...foundSecrets];
-        newSecrets.splice(index, 1);
-        setFoundSecrets(newSecrets);
-      })
-      .catch((error) => {
-        console.error('Secret was not removed: ', error);
-      });
-  }
   return (
     <div className='app'>
 
@@ -274,7 +262,6 @@ function App() {
             index={index}
             id={secret.id}
             secret={secret.data}
-            removeSecret={removeSecret}
           />
         ))}
       </CardDeck>

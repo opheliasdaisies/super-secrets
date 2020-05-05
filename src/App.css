@@ -1,5 +1,10 @@
 .app {
-  /* background: #209cee; */
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#81db81+0,83c783+18,52b152+33,008a00+51,005700+67,002400+83,002400+100 */
+  background: #81db81; /* Old browsers */
+  background: -moz-radial-gradient(center, ellipse cover,  #81db81 0%, #83c783 18%, #52b152 33%, #008a00 51%, #005700 67%, #002400 83%, #002400 100%); /* FF3.6-15 */
+  background: -webkit-radial-gradient(center, ellipse cover,  #81db81 0%,#83c783 18%,#52b152 33%,#008a00 51%,#005700 67%,#002400 83%,#002400 100%); /* Chrome10-25,Safari5.1-6 */
+  background: radial-gradient(ellipse at center,  #81db81 0%,#83c783 18%,#52b152 33%,#008a00 51%,#005700 67%,#002400 83%,#002400 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#81db81', endColorstr='#002400',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
   background-image: url('./background.jpg');
   background-size: cover;
   padding: 30px;

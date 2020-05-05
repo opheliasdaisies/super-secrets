@@ -165,6 +165,8 @@ function App() {
   const [foundSecrets, setFoundSecrets] = useState([]);
   const [addModalShow, setAddModalShow] = useState(false);
   const [findModalShow, setFindModalShow] = useState(false);
+  // TODO: Add locations for secrets
+  // TODO: Add notes for secrets, by finder
 
   useEffect(() => {
     async function fetchData() {
@@ -251,7 +253,7 @@ function App() {
     <div className='app'>
 
       <div className='new-secret-button'>
-        <h1>Super Secrets</h1>
+        <h1 style={{'color': 'white'}}>Super Secrets</h1>
         <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
         <AddSecretModal
           show={addModalShow}

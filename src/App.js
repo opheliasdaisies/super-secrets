@@ -21,9 +21,9 @@ firebase.initializeApp({
 
 let db = firebase.firestore();
 
-function Secret({ secret, index, id, findSecret, removeSecret }) {
+function Secret({ secret, index, id, removeSecret }) {
   return (
-    <Card style={{ 'min-width': '25%',textDecoration: secret.isFound ? "line-through" : '' }}>
+    <Card style={{ 'min-width': '25%' }}>
       <Card.Header>
         <Card.Title className='text-center'>{secret.title}</Card.Title>
       </Card.Header>
@@ -33,7 +33,6 @@ function Secret({ secret, index, id, findSecret, removeSecret }) {
         <Card.Subtitle>This is the rest of the story:</Card.Subtitle>
         <Card.Text>{secret.story}</Card.Text>
       </Card.Body>
-      <Button variant='outline-secondary' size='sm' onClick={() => findSecret(index, id)}>Find</Button>
       <Button variant='outline-secondary' size='sm' onClick={() => removeSecret(index, id)}>X</Button>
     </Card>
   );
@@ -91,6 +90,35 @@ function SecretForm({ addSecret }) {
   )
 }
 
+function UncoverSecretForm({ findSecret }) {
+  // TODO: On submit, show the secret story!
+  const [secretId, setSecretId] = useState('');
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!secretId) return;
+    findSecret(secretId);
+    setSecretId('');
+  }
+
+  return (
+    <Form onSubmit={handleSubmit}>
+      <Form.Group controlId='formFindSecretID'>
+        <Form.Label>Enter the Secret Code You Found</Form.Label>
+        <Form.Control
+          type='text'
+          placeholder='Enter the Secret Code'
+          value={secretId}
+          onChange={e => setSecretId(e.target.value)}
+        />
+      </Form.Group>
+      <Button variant='primary' type='submit'>
+        Submit
+      </Button>
+    </Form>
+  )
+}
+
 function AddSecretModal(props) {
   return(
     <Modal
@@ -127,7 +155,7 @@ function FindSecretModal(props) {
       </Modal.Header>
       <Modal.Body>
         <h4>Enter the id of the secret you found!</h4>
-        <SecretForm addSecret={props.addSecret} />
+        <UncoverSecretForm findSecret={props.findSecret} />
       </Modal.Body>
     </Modal>
   );
@@ -155,6 +183,8 @@ function App() {
   }, []);
 
   const addSecret = (title, content, story)  => {
+    // TODO: Add confirmation when secret is added
+    // TODO: Add ability to edit or delete your own secret
     db.collection('test_secrets').add({
       'title': title,
       'content': content,
@@ -182,15 +212,23 @@ function App() {
     });
   };
 
-  const findSecret = (index, id) => {
+  const findSecret = (id) => {
+    // TODO: Add date found
+    // TODO: Add modal showing found secret text, to highlight the story
     db.collection('test_secrets').doc(id).set({
       'isFound': true
     }, { merge: true })
       .then(() => {
         console.log('Secret was found!')
-        const newSecrets = [...foundSecrets];
-        newSecrets[index].isFound = true;
-        setFoundSecrets(newSecrets);
+        setFindModalShow(false)
+        db.collection('test_secrets').doc(id).get()
+          .then((querySnapshot) => {
+            let foundSecret = {'id': id, 'data': querySnapshot.data()};
+            const newSecrets = [...foundSecrets];
+            // TODO: Only add new secret if it hasn't been found before
+            newSecrets.unshift(foundSecret);
+            setFoundSecrets(newSecrets);
+          });
       })
       .catch((error) => {
         console.error('Secret was not marked as found: ', error);
@@ -211,18 +249,7 @@ function App() {
   }
   return (
     <div className='app'>
-      <CardDeck className='secret-list'>
-        {foundSecrets.map((secret, index) => (
-          <Secret
-            key={index}
-            index={index}
-            id={secret.id}
-            secret={secret.data}
-            findSecret={findSecret}
-            removeSecret={removeSecret}
-          />
-        ))}
-      </CardDeck>
+
       <div className='new-secret-button'>
         <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
         <AddSecretModal
@@ -230,13 +257,24 @@ function App() {
           onHide={() => setAddModalShow(false)}
           addSecret={addSecret}
         />
-        <Button variant='light' onClick={() => setFindModalShow(true)}>Uncover A Secret</Button>
+        <Button variant='light' onClick={() => setFindModalShow(true)}>Uncover The Story Behind A Secret</Button>
         <FindSecretModal
           show={findModalShow}
           onHide={() => setFindModalShow(false)}
           findSecret={findSecret}
         />
       </div>
+      <CardDeck className='secret-list'>
+        {foundSecrets.map((secret, index) => (
+          <Secret
+            key={index}
+            index={index}
+            id={secret.id}
+            secret={secret.data}
+            removeSecret={removeSecret}
+          />
+        ))}
+      </CardDeck>
     </div>
   )
 }

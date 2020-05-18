@@ -4,6 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import CardDeck from 'react-bootstrap/CardDeck';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 import './App.css';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -144,11 +146,11 @@ function FindSecretModal(props) {
     <Modal
       {...props}
       size='lg'
-      aria-labelledby='add-secret-modal-title'
+      aria-labelledby='find-secret-modal-title'
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title id='add-secret-modal-title'>
+        <Modal.Title id='find-secret-modal-title'>
           Uncover Secret
         </Modal.Title>
       </Modal.Header>
@@ -160,10 +162,39 @@ function FindSecretModal(props) {
   );
 }
 
+function FoundSecretContentModal(props) {
+  return(
+    <Modal
+      {...props}
+      size='lg'
+      aria-labelledby='found-secret-content-modal-title'
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id='found-secret-content-modal-title'>
+          Congratulations! You found the secret: {props.secretTitle}
+        </Modal.Title>
+      </Modal.Header>
+        <Modal.Body>
+          <Tabs defaultActiveKey='story' id='found-secret-modal-tabs'>
+            <Tab eventKey='content' title="Secret Content">
+              <p>{props.secretContent}</p>
+            </Tab>
+            <Tab eventKey='story' title="Secret Story">
+              <p>{props.secretStory}</p>
+            </Tab>
+          </Tabs>
+        </Modal.Body>
+    </Modal>
+  )
+}
+
 function App() {
   const [foundSecrets, setFoundSecrets] = useState([]);
   const [addModalShow, setAddModalShow] = useState(false);
   const [findModalShow, setFindModalShow] = useState(false);
+  const [currentFoundSecret, setCurrentFoundSecret] = useState({});
+  const [foundSecretContentModalShow, setFoundSecretContentModalShow] = useState(false);
   // TODO: Add locations for secrets
   // TODO: Add notes for secrets, by finder
 
@@ -215,17 +246,18 @@ function App() {
 
   const findSecret = (id) => {
     // TODO: Add date found
-    // TODO: Add modal showing found secret text, to highlight the story
     // TODO: First check to see if secret exists! Don't add if it does not
     db.collection('test_secrets').doc(id).set({
       'isFound': true
     }, { merge: true })
       .then(() => {
         console.log('Secret was found!')
-        setFindModalShow(false) // TODO: instead of settng show to false, change body to show secret
+        setFindModalShow(false)
+        setFoundSecretContentModalShow(true)
         db.collection('test_secrets').doc(id).get()
           .then((querySnapshot) => {
-            let foundSecret = {'id': id, 'data': querySnapshot.data()};
+            setCurrentFoundSecret(querySnapshot.data())
+            let foundSecret = {'id': id, 'data': currentFoundSecret};
             const newSecrets = [...foundSecrets];
             // TODO: Only add new secret if it hasn't been found before
             newSecrets.unshift(foundSecret);
@@ -255,6 +287,16 @@ function App() {
           findSecret={findSecret}
         />
       </div>
+      <FoundSecretContentModal
+        show={foundSecretContentModalShow}
+        secretTitle={currentFoundSecret.title}
+        secretContent={currentFoundSecret.content}
+        secretStory={currentFoundSecret.story}
+        onHide={() => {
+          setFoundSecretContentModalShow(false);
+          setCurrentFoundSecret({});
+        }}
+      />
       <CardDeck className='secret-list'>
         {foundSecrets.map((secret, index) => (
           <Secret

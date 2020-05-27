@@ -244,6 +244,15 @@ function App() {
     });
   };
 
+  const secretNotYetFound = (foundSecretId) => {
+    for (let i in foundSecrets){
+      if (foundSecrets[i]['id'] === foundSecretId) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   const findSecret = (id) => {
     // TODO: Add date found
     db.collection('test_secrets').doc(id).get()
@@ -258,9 +267,10 @@ function App() {
               setFindModalShow(false)
               setFoundSecretContentModalShow(true)
               const newSecrets = [...foundSecrets];
-              // TODO: Only add a new secret if it hasn't been found before
-              newSecrets.unshift(foundSecret);
-              setFoundSecrets(newSecrets);
+              if (secretNotYetFound(foundSecret.id)) {
+                newSecrets.unshift(foundSecret);
+                setFoundSecrets(newSecrets);
+              }
             })
             .catch((error) => {
               console.error('Secret was not marked as found: ', error);

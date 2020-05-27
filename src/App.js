@@ -246,27 +246,33 @@ function App() {
 
   const findSecret = (id) => {
     // TODO: Add date found
-    // TODO: First check to see if secret exists! Don't add if it does not
-    db.collection('test_secrets').doc(id).set({
-      'isFound': true
-    }, { merge: true })
-      .then(() => {
-        console.log('Secret was found!')
-        setFindModalShow(false)
-        setFoundSecretContentModalShow(true)
-        db.collection('test_secrets').doc(id).get()
-          .then((querySnapshot) => {
-            setCurrentFoundSecret(querySnapshot.data())
-            let foundSecret = {'id': id, 'data': currentFoundSecret};
-            const newSecrets = [...foundSecrets];
-            // TODO: Only add new secret if it hasn't been found before
-            newSecrets.unshift(foundSecret);
-            setFoundSecrets(newSecrets);
-          });
+    db.collection('test_secrets').doc(id).get()
+      .then((querySnapshot) => {
+        if (querySnapshot.data()){
+          let foundSecret = {'id': id, 'data': querySnapshot.data()};
+          db.collection('test_secrets').doc(id).set({
+            'isFound': true
+          }, {merge: true })
+            .then(() => {
+              setCurrentFoundSecret(foundSecret.data)
+              setFindModalShow(false)
+              setFoundSecretContentModalShow(true)
+              const newSecrets = [...foundSecrets];
+              // TODO: Only add a new secret if it hasn't been found before
+              newSecrets.unshift(foundSecret);
+              setFoundSecrets(newSecrets);
+            })
+            .catch((error) => {
+              console.error('Secret was not marked as found: ', error);
+            });
+        } else {
+          console.log('no secret!')
+          // TODO: Tell user if secret doesn't exist
+        }
       })
       .catch((error) => {
-        console.error('Secret was not marked as found: ', error);
-      });
+        console.error('Error retrieving secret: ', error);
+      })
   }
 
   return (

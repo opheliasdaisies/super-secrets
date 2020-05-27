@@ -92,7 +92,6 @@ function SecretForm({ addSecret }) {
 }
 
 function UncoverSecretForm({ findSecret }) {
-  // TODO: On submit, show the secret story!
   const [secretId, setSecretId] = useState('');
 
   const handleSubmit = e => {
@@ -221,23 +220,12 @@ function App() {
       'title': title,
       'content': content,
       'story': story,
-      'isFound': false
+      'isFound': false,
+      'firstFoundDate': null
     })
     .then((docRef) => {
       console.log('Document successfully written');
       setAddModalShow(false)
-      const updatedSecrets = [...foundSecrets, {
-        'id': docRef.id,
-        'data':
-          {
-            'title': title,
-            'content': content,
-            'story': story,
-            'isFound': false
-          }
-        }
-      ];
-      setFoundSecrets(updatedSecrets);
     })
     .catch((error) => {
       console.error('Error writing document: ', error);

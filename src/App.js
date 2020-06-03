@@ -10,6 +10,7 @@ import './App.css';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import moment from 'moment';
 
 firebase.initializeApp({
   apiKey: 'AIzaSyAieFeZtBjHMCqzH4wDchXLwlWSW6RJpgI',
@@ -24,6 +25,9 @@ firebase.initializeApp({
 let db = firebase.firestore();
 
 function Secret({ secret, index, id }) {
+  let date = moment(parseInt(secret.firstFoundAt)).format('dddd, MMMM Do YYYY')
+  let time = moment(parseInt(secret.firstFoundAt)).format('h:mm a')
+
   return (
     <Card style={{ 'min-width': '25%' }}>
       <Card.Header>
@@ -34,6 +38,9 @@ function Secret({ secret, index, id }) {
         <Card.Text>{secret.content}</Card.Text>
         <Card.Subtitle>This is the rest of the story:</Card.Subtitle>
         <Card.Text>{secret.story}</Card.Text>
+        <footer>
+            First found {date} at {time}
+        </footer>
       </Card.Body>
     </Card>
   );
@@ -221,7 +228,8 @@ function App() {
       'content': content,
       'story': story,
       'isFound': false,
-      'firstFoundDate': null
+      'createdAt': moment().format('x'),
+      'firstFoundAt': null
     })
     .then((docRef) => {
       console.log('Document successfully written');
@@ -242,14 +250,14 @@ function App() {
   }
 
   const findSecret = (id) => {
-    // TODO: Add date found
     db.collection('test_secrets').doc(id).get()
       .then((querySnapshot) => {
         if (querySnapshot.data()){
           let foundSecret = {'id': id, 'data': querySnapshot.data()};
-          db.collection('test_secrets').doc(id).set({
-            'isFound': true
-          }, {merge: true })
+          let foundDate = foundSecret.data.firstFoundAt || moment().format('x');
+          foundSecret['data']['isFound'] = true
+          foundSecret['data']['firstFoundAt'] = foundDate
+          db.collection('test_secrets').doc(id).set(foundSecret['data'])
             .then(() => {
               setCurrentFoundSecret(foundSecret.data)
               setFindModalShow(false)
@@ -308,6 +316,7 @@ function App() {
             index={index}
             id={secret.id}
             secret={secret.data}
+            foundAt={secret.firstFoundAt}
           />
         ))}
       </CardDeck>

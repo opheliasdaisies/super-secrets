@@ -1,3 +1,9 @@
+.title {
+  color: white;
+  justify-content: center;
+  font-family: 'Special Elite', monospace;;
+}
+
 .app {
   /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#81db81+0,83c783+18,52b152+33,008a00+51,005700+67,002400+83,002400+100 */
   background: #81db81; /* Old browsers */

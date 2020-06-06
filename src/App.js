@@ -1,11 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import CardDeck from 'react-bootstrap/CardDeck';
-import Tabs from 'react-bootstrap/Tabs';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import './App.css';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -38,10 +40,10 @@ function Secret({ secret, index, id }) {
         <Card.Text>{secret.content}</Card.Text>
         <Card.Subtitle>This is the rest of the story:</Card.Subtitle>
         <Card.Text>{secret.story}</Card.Text>
-        <footer>
-            First found {date} at {time}
-        </footer>
       </Card.Body>
+      <Card.Footer>
+        First found {date} at {time}
+      </Card.Footer>
     </Card>
   );
 }
@@ -201,13 +203,13 @@ function App() {
   const [findModalShow, setFindModalShow] = useState(false);
   const [currentFoundSecret, setCurrentFoundSecret] = useState({});
   const [foundSecretContentModalShow, setFoundSecretContentModalShow] = useState(false);
-  // TODO: Add locations for secrets
   // TODO: Add notes for secrets, by finder
+  // TODO: Make sure background extends/repeats
 
   useEffect(() => {
     async function fetchData() {
       await db.collection('test_secrets')
-        .where('isFound', '==', true)
+        .orderBy('firstFoundAt', 'desc')
         .get()
         .then((querySnapshot) => {
           let loadedSecrets = []
@@ -221,7 +223,8 @@ function App() {
   }, []);
 
   const addSecret = (title, content, story)  => {
-    // TODO: Add confirmation when secret is added
+    // TODO: Add confirmation when secret is added along with secret code
+    // TODO: make the secret codes friendlier
     // TODO: Add ability to edit or delete your own secret
     db.collection('test_secrets').add({
       'title': title,
@@ -283,43 +286,58 @@ function App() {
 
   return (
     <div className='app'>
-
-      <div className='new-secret-button'>
-        <h1 style={{'color': 'white'}}>Super Secrets</h1>
-        <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
-        <AddSecretModal
-          show={addModalShow}
-          onHide={() => setAddModalShow(false)}
-          addSecret={addSecret}
-        />
-        <Button variant='light' onClick={() => setFindModalShow(true)}>Uncover The Story Behind A Secret</Button>
-        <FindSecretModal
-          show={findModalShow}
-          onHide={() => setFindModalShow(false)}
-          findSecret={findSecret}
-        />
-      </div>
-      <FoundSecretContentModal
-        show={foundSecretContentModalShow}
-        secretTitle={currentFoundSecret.title}
-        secretContent={currentFoundSecret.content}
-        secretStory={currentFoundSecret.story}
-        onHide={() => {
-          setFoundSecretContentModalShow(false);
-          setCurrentFoundSecret({});
-        }}
-      />
-      <CardDeck className='secret-list'>
-        {foundSecrets.map((secret, index) => (
-          <Secret
+      <Container >
+        <Row className='title'>
+          <h1>Super Secrets</h1>
+        </Row>
+        <Row>
+          <h2 style={{'color': 'white'}}>What is this anyway?</h2>
+          <p style={{'color': 'white'}} >
+            This project is inspired by secrets and collectables in video games.<br/>
+            Have you found a secret? Click "Uncover the story" and find out what other information you will
+            uncover!<br/>
+            Do you want to share a story? Click "Add a secret". Write the secret content on a piece of paper and
+            leave it somewhere in your neighborhood for someone to find. Make sure to write the code on it and supersecrets.club
+            so that whoever finds the secret can learn the rest of the story.<br/>
+            Once a secret is found, it will be visible for everyone to see.
+          </p>
+        </Row>
+        <Row className='new-secret-button'>
+          <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
+          <Button variant='light' onClick={() => setFindModalShow(true)}>Uncover The Story Behind A Secret</Button>
+        </Row>
+        <CardDeck className='secret-list'>
+          {foundSecrets.map((secret, index) => (
+            <Secret
             key={index}
             index={index}
             id={secret.id}
             secret={secret.data}
             foundAt={secret.firstFoundAt}
-          />
-        ))}
-      </CardDeck>
+            />
+            ))}
+        </CardDeck>
+        <AddSecretModal
+          show={addModalShow}
+          onHide={() => setAddModalShow(false)}
+          addSecret={addSecret}
+        />
+        <FindSecretModal
+          show={findModalShow}
+          onHide={() => setFindModalShow(false)}
+          findSecret={findSecret}
+        />
+        <FoundSecretContentModal
+          show={foundSecretContentModalShow}
+          secretTitle={currentFoundSecret.title}
+          secretContent={currentFoundSecret.content}
+          secretStory={currentFoundSecret.story}
+          onHide={() => {
+            setFoundSecretContentModalShow(false);
+            setCurrentFoundSecret({});
+          }}
+        />
+      </Container>
     </div>
   )
 }

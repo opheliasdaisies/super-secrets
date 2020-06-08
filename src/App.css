@@ -1,10 +1,4 @@
-.title {
-  color: white;
-  justify-content: center;
-  font-family: 'Special Elite', monospace;;
-}
-
-.app {
+body {
   /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#81db81+0,83c783+18,52b152+33,008a00+51,005700+67,002400+83,002400+100 */
   background: #81db81; /* Old browsers */
   background: -moz-radial-gradient(center, ellipse cover,  #81db81 0%, #83c783 18%, #52b152 33%, #008a00 51%, #005700 67%, #002400 83%, #002400 100%); /* FF3.6-15 */
@@ -13,8 +7,37 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#81db81', endColorstr='#002400',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
   background-image: url('./background.jpg');
   background-size: cover;
+  background-attachment: fixed;
+}
+
+.app {
   padding: 30px;
   height: 100vh;
+}
+
+.title {
+  color: white;
+  justify-content: center;
+  font-family: 'Special Elite', monospace;
+  font-size: 3rem;
+  padding-top: 30px;
+}
+
+.about {
+  color: white;
+  background-color: #052d05;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin: 20px;
+}
+
+.about Button {
+  margin: 8px;
+}
+
+.secret-list .card {
+  min-width: 45%;
+  margin-top: 20px;
 }
 
 .found-secrets-list {

@@ -31,7 +31,7 @@ function Secret({ secret, index, id }) {
   let time = moment(parseInt(secret.firstFoundAt)).format('h:mm a')
 
   return (
-    <Card style={{ 'min-width': '25%' }}>
+    <Card>
       <Card.Header>
         <Card.Title className='text-center'>{secret.title}</Card.Title>
       </Card.Header>
@@ -290,9 +290,9 @@ function App() {
         <Row className='title'>
           <h1>Super Secrets</h1>
         </Row>
-        <Row>
-          <h2 style={{'color': 'white'}}>What is this anyway?</h2>
-          <p style={{'color': 'white'}} >
+        <Row className='about'>
+          <h2>What is this anyway?</h2>
+          <p>
             This project is inspired by secrets and collectables in video games.<br/>
             Have you found a secret? Click "Uncover the story" and find out what other information you will
             uncover!<br/>
@@ -301,9 +301,7 @@ function App() {
             so that whoever finds the secret can learn the rest of the story.<br/>
             Once a secret is found, it will be visible for everyone to see.
           </p>
-        </Row>
-        <Row className='new-secret-button'>
-          <Button variant='dark' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
+          <Button variant='outline-light' onClick={() => setAddModalShow(true)}>Add A Secret</Button>
           <Button variant='light' onClick={() => setFindModalShow(true)}>Uncover The Story Behind A Secret</Button>
         </Row>
         <CardDeck className='secret-list'>
